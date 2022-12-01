@@ -42,13 +42,14 @@ void main() {
 
 
 class MockTodoRepo implements TodoRepository {
-  List<Todo> _todos = [];
+  final List<Todo> _todos = [];
   int expectedElement = 0;
   
   @override
   Future<void> save(List<Todo> todos) async {
     expect(todos.length, greaterThanOrEqualTo(expectedElement));
-    _todos = todos;
+    _todos.clear();
+    _todos.addAll(todos);
   }
 
   @override

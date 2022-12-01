@@ -23,6 +23,7 @@ jobs:
         run: flutter test
 
   android:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-latest
     name: build apk
     steps:
@@ -43,6 +44,7 @@ jobs:
         run: flutter build appbundle
 
   windows:
+    if: ${{ false }}  # disable for now
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
