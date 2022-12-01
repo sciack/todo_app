@@ -49,7 +49,6 @@ class MockTodoRepo implements TodoRepository {
 
   @override
   Future<void> save(List<Todo> todos) async {
-    expect(todos.length, greaterThan(0));
     _todos = todos;
   }
 

@@ -28,16 +28,26 @@ void main() {
       todo = Todo(id: todo.id, name: todo.name, checked: !todo.checked);
       todoModel.set(todo);
     });
+
+    test('Store should trigger a save', () {
+      final repo = MockTodoRepo();
+      final todoModel = TodoModel(repo);
+      const name = "A todo";
+      repo.expectedElement = 1;
+      todoModel.add(name);
+      repo.expectedElement = 0;
+    });
   });
 }
 
 
 class MockTodoRepo implements TodoRepository {
   List<Todo> _todos = [];
-
+  int expectedElement = 0;
+  
   @override
   Future<void> save(List<Todo> todos) async {
-    expect(todos.length, greaterThan(0));
+    expect(todos.length, greaterThanOrEqualTo(expectedElement));
     _todos = todos;
   }
 
