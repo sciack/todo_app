@@ -5,6 +5,7 @@ on:
 
 jobs:
   test:
+    runs-on: ubuntu-latest
     name: Flutter test
     steps:
       - uses: actions/checkout@v3
@@ -22,6 +23,7 @@ jobs:
         run: flutter test
 
   android:
+    runs-on: ubuntu-latest
     name: build apk
     steps:
       - uses: actions/checkout@v3
