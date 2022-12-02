@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:todo_app/todo_model_repo.dart'
     if (dart.library.io) 'package:todo_app/todo_model_io.dart'
     if (dart.library.js) 'package:todo_app/todo_model_web.dart';
@@ -53,6 +52,12 @@ class TodoModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool remove(Todo todo) {
+    final length = _todos.length;
+    _todos.removeWhere((element) => element.id == todo.id);
+    return length != _todos.length;
+  }
+
 
 }
 
@@ -100,6 +105,7 @@ abstract class TodoRepository {
   static TodoRepository? _instance;
 
   Future<List<Todo>> read();
+
 
   static TodoRepository get instance {
     _instance ??= getTodoRepository();

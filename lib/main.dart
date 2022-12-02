@@ -19,19 +19,14 @@ class TodoApp extends StatelessWidget {
     return ChangeNotifierProvider(
         create: (context) => TodoModel(todoRepo),
         child: MaterialApp(
-          title: "Todo list",
-          home: const TodoList(),
-          theme: ThemeData(
-            brightness: Brightness.light,
-            primarySwatch: Colors.blueGrey,
-            scaffoldBackgroundColor: Colors.white,
-            textTheme: const TextTheme(
-              bodyText2: TextStyle(
-                color: Colors.redAccent
-              )
-            )
-          )
-        ));
+            title: "Todo list",
+            home: const TodoList(),
+            theme: ThemeData(
+                brightness: Brightness.light,
+                primarySwatch: Colors.blueGrey,
+                scaffoldBackgroundColor: Colors.white,
+                textTheme: const TextTheme(
+                    bodyText2: TextStyle(color: Colors.redAccent)))));
   }
 }
 
@@ -77,8 +72,7 @@ class TodoList extends StatelessWidget {
               child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             children: todos
-                .where((todo) =>
-                    model.isShowExpired || !(todo.checked))
+                .where((todo) => model.isShowExpired || !(todo.checked))
                 .map((Todo todo) {
               return TodoItem(
                 todo: todo,
@@ -117,16 +111,38 @@ class TodoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () {
-        Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
-      },
-      leading: CircleAvatar(
-        child: Text(todo.name[0].toUpperCase()),
-      ),
-      title: Text(todo.name, style: _getTextStyle(todo, _styleFromDate(todo, context))),
-      subtitle: Text(formatDate(todo.date), style: _getDateStyle(todo,_styleFromDate(todo, context))),
-    );
+    var model = context.watch<TodoModel>();
+    return Dismissible(
+        key: Key('${todo.id}'),
+        direction: DismissDirection.endToStart,
+        onDismissed: (direction) {
+          model.remove(todo);
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Todo "${todo.name}" dismissed')));
+        },
+        background: Container(
+          alignment: AlignmentDirectional.centerEnd,
+          color: Colors.red,
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+            child: Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        child: ListTile(
+          onTap: () {
+            Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
+          },
+          leading: CircleAvatar(
+            child: Text(todo.name[0].toUpperCase()),
+          ),
+          title: Text(todo.name,
+              style: _getTextStyle(todo, _styleFromDate(todo, context))),
+          subtitle: Text(formatDate(todo.date),
+              style: _getDateStyle(todo, _styleFromDate(todo, context))),
+        ));
   }
 
   TextStyle? _getTextStyle(Todo todo, TextStyle? baseTextStyle) {
