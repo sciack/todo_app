@@ -1,12 +1,11 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/todo_add_dialog.dart';
 import 'package:todo_app/todo_model.dart';
 
 void main() {
-  runApp(TodoApp(todoRepo: TodoRepository.INSTANCE));
+  TodoRepository repo = TodoRepository.instance;
+  runApp(TodoApp(todoRepo: repo));
 }
 
 class TodoApp extends StatelessWidget {

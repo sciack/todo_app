@@ -1,10 +1,11 @@
-import 'dart:collection';
-import 'dart:convert';
-import 'dart:io';
 import 'dart:async';
-import 'package:path_provider/path_provider.dart';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:todo_app/todo_model_repo.dart'
+  if (dart.library.io) 'package:todo_app/todo_model_io.dart'
+  if (dart.library.js) 'package:todo_app/todo_model_web.dart'
+;
 
 class TodoModel extends ChangeNotifier {
   final List<Todo> _todos = [];
@@ -18,7 +19,6 @@ class TodoModel extends ChangeNotifier {
       repo.save(todos);
     });
   }
-
 
   Future<void> _loadTodo() async {
     _todos.clear();
@@ -45,7 +45,6 @@ class Todo {
         id = json['id'],
         checked = json['checked'];
 
-
   final String name;
   final bool checked;
   final int id;
@@ -55,41 +54,20 @@ class Todo {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'checked': checked
-    };
-  }
-
-}
-
-class TodoRepository {
-  var _file;
-  static final TodoRepository INSTANCE = TodoRepository._privateConstructor();
-
-  TodoRepository._privateConstructor();
-
-  Future<File> get _localFile async {
-    _file ??= await _initFile();
-    return _file;
-  }
-
-  Future<File> _initFile() async {
-    var directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/todo.json');
-  }
-
-  Future<void> save(List<Todo> todos) async {
-    var json = jsonEncode(todos);
-    final localFile = await _localFile;
-    localFile.writeAsString(json);
-  }
-
-  Future<List<Todo>> read() async {
-    final localFile = await _localFile;
-    final json = await localFile.readAsString();
-    final List<dynamic> jsonObject = jsonDecode(json);
-    return jsonObject.map((json) => Todo.fromJson(json)).toList();
+    return {'id': id, 'name': name, 'checked': checked};
   }
 }
+
+abstract class TodoRepository {
+  Future save(List<Todo> todos);
+  static TodoRepository? _instance;
+
+  Future<List<Todo>> read();
+
+  static TodoRepository get instance {
+    _instance ??= getTodoRepository();
+    return _instance!;
+  }
+}
+
+
