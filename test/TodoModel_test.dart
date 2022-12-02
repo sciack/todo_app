@@ -12,20 +12,20 @@ void main() {
         expect(todoModel.todos[0].name, equals(name));
       });
 
-      todoModel.add(name);
+      todoModel.add(name, DateTime.now());
     });
 
     test('Set an item should be notified', () {
       final todoModel = TodoModel(MockTodoRepo());
       const name = "A todo";
-      todoModel.add(name);
+      todoModel.add(name, DateTime.now());
 
       todoModel.addListener(() {
         expect(todoModel.todos[0].checked, equals(true));
       });
 
       var todo = todoModel.todos[0];
-      todo = Todo(id: todo.id, name: todo.name, checked: !todo.checked);
+      todo = Todo(id: todo.id, name: todo.name, checked: !todo.checked, date: todo.date);
       todoModel.set(todo);
     });
 
@@ -34,7 +34,7 @@ void main() {
       final todoModel = TodoModel(repo);
       const name = "A todo";
       repo.expectedElement = 1;
-      todoModel.add(name);
+      todoModel.add(name, DateTime.now());
       repo.expectedElement = 0;
     });
   });

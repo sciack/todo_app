@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_app/main.dart';
 import 'package:todo_app/todo_model.dart';
 
 class TodoDialog extends StatefulWidget {
@@ -11,6 +14,8 @@ class TodoDialog extends StatefulWidget {
 
 class TodoDialogState extends State<TodoDialog> {
   final TextEditingController _textFieldController = TextEditingController();
+  final TextEditingController _dateFieldController = TextEditingController();
+  DateTime date = DateTime.now();
 
   TodoDialogState();
 
@@ -26,6 +31,11 @@ class TodoDialogState extends State<TodoDialog> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _dateFieldController.text = formatDate(date);
+  }
+  @override
   void dispose() {
     _textFieldController.dispose();
     super.dispose();
@@ -35,12 +45,40 @@ class TodoDialogState extends State<TodoDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Add a new todo item'),
-      content: TextField(
-        key: const ValueKey('Todo-Text'),
-        controller: _textFieldController,
-        decoration: InputDecoration(
-            hintText: 'Type your new todo', errorText: _errorText),
-        onChanged: (_) => setState(() {}),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            key: const ValueKey('Todo-Text'),
+            controller: _textFieldController,
+            decoration: InputDecoration(
+                labelText: 'Todo',
+                errorText: _errorText),
+            onChanged: (_) => setState(() {}),
+          ),
+          TextField(
+              key: const ValueKey('Todo-Date'),
+              controller: _dateFieldController,
+              decoration: const InputDecoration(
+                  suffixIcon: Icon(Icons.calendar_today), //icon of text field
+                  labelText: "Enter Date" //label text of field
+                  ),
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(), //get today's date
+                    firstDate:DateTime(2020), //DateTime.now() - not to allow to choose before today.
+                    lastDate: DateTime(2030)
+                );
+                if(pickedDate != null) {
+                  _dateFieldController.text = formatDate(pickedDate);
+                  setState(() {
+                    date = pickedDate;
+                  });
+                }
+              })
+        ],
       ),
       actions: <Widget>[
         TextButton(
@@ -50,7 +88,8 @@ class TodoDialogState extends State<TodoDialog> {
                 return;
               }
               Navigator.of(context).pop();
-              _addTodoItem(context, _textFieldController.text);
+              _addTodoItem(context, _textFieldController.text,
+                  date);
             }),
         TextButton(
           child: const Text('Cancel'),
@@ -62,8 +101,10 @@ class TodoDialogState extends State<TodoDialog> {
     );
   }
 
-  void _addTodoItem(BuildContext context, String name) {
-    Provider.of<TodoModel>(context, listen: false).add(name);
+  void _addTodoItem(BuildContext context, String name, DateTime date) {
+    Provider.of<TodoModel>(context, listen: false).add(name, date);
     _textFieldController.clear();
   }
 }
+
+

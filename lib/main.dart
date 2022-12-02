@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/todo_add_dialog.dart';
 import 'package:todo_app/todo_model.dart';
@@ -10,6 +11,7 @@ void main() {
 
 class TodoApp extends StatelessWidget {
   final TodoRepository todoRepo;
+
   const TodoApp({super.key, required this.todoRepo});
 
   @override
@@ -29,13 +31,27 @@ class TodoList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var model = context.watch<TodoModel>();
+    var todos = <Todo>[];
+    todos.addAll(model.todos);
+    todos.sort((first, second) {
+      if (first.checked && !second.checked) {
+        return -1;
+      }
+      if (second.checked) {
+        return 1;
+      }
+      return first.date.compareTo(second.date);
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todo list'),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        children: model.todos.map((Todo todo) {
+        children: todos
+            .where((todo) => !(todo.isLate() && todo.checked))
+            .map((Todo todo) {
           return TodoItem(
             todo: todo,
             onTodoChanged: _toggleTodoChecked,
@@ -58,9 +74,7 @@ class TodoList extends StatelessWidget {
         });
   }
 
-  void _toggleTodoChecked(Todo todo) {
-
-  }
+  void _toggleTodoChecked(Todo todo) {}
 }
 
 typedef TodoChangeFunction = void Function(Todo todo);
@@ -74,24 +88,49 @@ class TodoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        onTap: () {
-          Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
-        },
-        leading: CircleAvatar(
-          child: Text(todo.name[0]),
-        ),
-        title: Text(todo.name, style: _getTextStyle(todo.checked)));
+      onTap: () {
+        Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
+      },
+      leading: CircleAvatar(
+        child: Text(todo.name[0]),
+      ),
+      title: Text(todo.name, style: _getTextStyle(todo)),
+      subtitle: Text(formatDate(todo.date), style: _getDateStyle(todo)),
+
+    );
   }
 
-  TextStyle _getTextStyle(bool checked) {
-    if (!checked) return const TextStyle(color: Colors.black54);
-    return const TextStyle(
-      color: Colors.black54,
+  TextStyle _getTextStyle(Todo todo) {
+    Color color = colorFromDate(todo);
+    if (!todo.checked) return TextStyle(color: color);
+    return TextStyle(
+      color: color,
       decoration: TextDecoration.lineThrough,
     );
   }
+
+  TextStyle _getDateStyle(Todo todo) {
+    TextStyle style = _getTextStyle(todo);
+    return TextStyle(
+        color: style.color,
+        decoration: style.decoration,
+        fontStyle: FontStyle.italic,
+        fontSize: (style.fontSize ?? 14) * 0.8);
+  }
+
+  Color colorFromDate(Todo todo) {
+    Color color;
+    if (todo.isLate()) {
+      color = Colors.red;
+    } else {
+      color = Colors.black54;
+    }
+    return color;
+  }
 }
 
-
+String formatDate(DateTime date) {
+  return DateFormat(DateFormat.YEAR_MONTH_DAY).format(date);
+}
 
 
