@@ -18,9 +18,19 @@ class TodoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
         create: (context) => TodoModel(todoRepo),
-        child: const MaterialApp(
+        child: MaterialApp(
           title: "Todo list",
-          home: TodoList(),
+          home: const TodoList(),
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primarySwatch: Colors.blueGrey,
+            scaffoldBackgroundColor: Colors.white,
+            textTheme: const TextTheme(
+              bodyText2: TextStyle(
+                color: Colors.redAccent
+              )
+            )
+          )
         ));
   }
 }
@@ -30,6 +40,7 @@ class TodoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var textStyle = Theme.of(context).textTheme.caption;
     var model = context.watch<TodoModel>();
     var todos = <Todo>[];
     todos.addAll(model.todos);
@@ -47,16 +58,35 @@ class TodoList extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Todo list'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        children: todos
-            .where((todo) => !(todo.isLate() && todo.checked))
-            .map((Todo todo) {
-          return TodoItem(
-            todo: todo,
-            onTodoChanged: _toggleTodoChecked,
-          );
-        }).toList(),
+      body: Column(
+        children: [
+          Row(children: [
+            Switch(
+                value: model.isShowExpired,
+                onChanged: (bool value) {
+                  model.showExpired = value;
+                }),
+            Container(
+                padding: const EdgeInsets.only(left: 16, right: 8),
+                child: Text(
+                  'Show completed item',
+                  style: textStyle,
+                )),
+          ]),
+          Expanded(
+              child: ListView(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            children: todos
+                .where((todo) =>
+                    model.isShowExpired || !(todo.checked))
+                .map((Todo todo) {
+              return TodoItem(
+                todo: todo,
+                onTodoChanged: _toggleTodoChecked,
+              );
+            }).toList(),
+          ))
+        ],
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () => _displayDialog(context),
@@ -92,45 +122,40 @@ class TodoItem extends StatelessWidget {
         Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
       },
       leading: CircleAvatar(
-        child: Text(todo.name[0]),
+        child: Text(todo.name[0].toUpperCase()),
       ),
-      title: Text(todo.name, style: _getTextStyle(todo)),
-      subtitle: Text(formatDate(todo.date), style: _getDateStyle(todo)),
-
+      title: Text(todo.name, style: _getTextStyle(todo, _styleFromDate(todo, context))),
+      subtitle: Text(formatDate(todo.date), style: _getDateStyle(todo,_styleFromDate(todo, context))),
     );
   }
 
-  TextStyle _getTextStyle(Todo todo) {
-    Color color = colorFromDate(todo);
-    if (!todo.checked) return TextStyle(color: color);
+  TextStyle? _getTextStyle(Todo todo, TextStyle? baseTextStyle) {
+    if (!todo.checked) return baseTextStyle;
     return TextStyle(
-      color: color,
+      color: baseTextStyle?.color,
       decoration: TextDecoration.lineThrough,
     );
   }
 
-  TextStyle _getDateStyle(Todo todo) {
-    TextStyle style = _getTextStyle(todo);
+  TextStyle _getDateStyle(Todo todo, TextStyle? baseTextStyle) {
+    TextStyle? style = _getTextStyle(todo, baseTextStyle);
     return TextStyle(
-        color: style.color,
-        decoration: style.decoration,
+        color: style?.color,
+        decoration: style?.decoration,
         fontStyle: FontStyle.italic,
-        fontSize: (style.fontSize ?? 14) * 0.8);
+        fontSize: (style?.fontSize ?? 14) * 0.8);
   }
 
-  Color colorFromDate(Todo todo) {
-    Color color;
+  TextStyle? _styleFromDate(Todo todo, BuildContext context) {
+    var textTheme = Theme.of(context).textTheme;
     if (todo.isLate()) {
-      color = Colors.red;
+      return textTheme.bodyText2;
     } else {
-      color = Colors.black54;
+      return textTheme.bodyText1;
     }
-    return color;
   }
 }
 
 String formatDate(DateTime date) {
   return DateFormat(DateFormat.YEAR_MONTH_DAY).format(date);
 }
-
-
