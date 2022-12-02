@@ -48,9 +48,15 @@ void main() {
       const name = "A todo";
       todoModel.add(name, DateTime.now());
       var todo = todoModel.todos.first;
+      var called = false;
+      todoModel.addListener(() {
+        expect(todoModel.todos.length, equals(0));
+        called = true;
+      });
       final removed = todoModel.remove(todo);
       expect(removed, equals(true));
       expect(todoModel.todos.length, equals(0));
+      expect(called, equals(true));
     });
 
     test('Remove should remove only that item', () {

@@ -55,6 +55,7 @@ class TodoModel extends ChangeNotifier {
   bool remove(Todo todo) {
     final length = _todos.length;
     _todos.removeWhere((element) => element.id == todo.id);
+    notifyListeners();
     return length != _todos.length;
   }
 

@@ -40,6 +40,29 @@ void main() {
       expect(find.text(todoText), findsOneWidget);
       //add logic for adding a todo
     });
+
+    testWidgets('Should remove a todo', (WidgetTester tester) async {
+      const todoText = 'Test todo item';
+      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo()));
+
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Add"), findsOneWidget);
+      await tester.enterText(
+          find.byKey(const ValueKey('Todo-Text')), todoText);
+
+      await tester.tap(find.text("Add"));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text(todoText), findsOneWidget);
+      await tester.drag(find.text(todoText), const Offset(-500, 0));
+      await tester.pumpAndSettle();
+
+      expect(find.text(todoText), findsNothing);
+
+    });
   });
 
 }
