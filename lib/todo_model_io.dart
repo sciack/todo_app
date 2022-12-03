@@ -27,6 +27,10 @@ class LocalFileTodoRepository implements TodoRepository {
   @override
   Future<List<Todo>> read() async {
     final localFile = await _localFile;
+    var exists = await localFile.exists();
+    if (!exists) {
+      return [];
+    }
     final json = await localFile.readAsString();
     final List<dynamic> jsonObject = jsonDecode(json);
     return jsonObject.map((json) => Todo.fromJson(json)).toList();
