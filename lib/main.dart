@@ -78,38 +78,37 @@ class TodoList extends StatelessWidget {
               return TodoItem(
                 key: Key("Todo-${todo.id}"),
                 todo: todo,
-                onTodoChanged: _toggleTodoChecked,
+                onTodoTapped: _displayDialog,
               );
             }).toList(),
           ))
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => _displayDialog(context),
+          onPressed: () => _displayDialog(context, null),
           tooltip: 'Add Item',
-          child: const Icon(Icons.add)),
+          child: const Icon(Icons.add))
     );
   }
 
-  Future<void> _displayDialog(BuildContext context) async {
+  Future<void> _displayDialog(BuildContext context, Todo? todo) async {
     return showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return const TodoDialog(key: ValueKey("Todo-Dialog"));
+          return TodoDialog(key: const ValueKey("Todo-Dialog"), todo: todo);
         });
   }
 
-  void _toggleTodoChecked(Todo todo) {}
 }
 
-typedef TodoChangeFunction = void Function(Todo todo);
+typedef TodoChangeFunction = void Function(BuildContext context, Todo? todo);
 
 class TodoItem extends StatelessWidget {
-  const TodoItem({super.key, required this.todo, required this.onTodoChanged});
+  const TodoItem({super.key, required this.todo, required this.onTodoTapped});
 
   final Todo todo;
-  final TodoChangeFunction onTodoChanged;
+  final TodoChangeFunction onTodoTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +155,9 @@ class TodoItem extends StatelessWidget {
               style: _getTextStyle(todo, _styleFromDate(todo, context))),
           subtitle: Text(formatDate(todo.date),
               style: _getDateStyle(todo, _styleFromDate(todo, context))),
+          onTap: ()  {
+            onTodoTapped(context, todo);
+          },
         ));
   }
 
