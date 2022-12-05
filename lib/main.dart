@@ -57,6 +57,7 @@ class TodoList extends StatelessWidget {
         children: [
           Row(children: [
             Switch(
+                key: const Key('completed-switch'),
                 value: model.isShowExpired,
                 onChanged: (bool value) {
                   model.showExpired = value;
@@ -75,6 +76,7 @@ class TodoList extends StatelessWidget {
                 .where((todo) => model.isShowExpired || !(todo.checked))
                 .map((Todo todo) {
               return TodoItem(
+                key: Key("Todo-${todo.id}"),
                 todo: todo,
                 onTodoChanged: _toggleTodoChecked,
               );
@@ -113,14 +115,29 @@ class TodoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     var model = context.watch<TodoModel>();
     return Dismissible(
-        key: Key('${todo.id}'),
-        direction: DismissDirection.endToStart,
+        key: UniqueKey(),
+        direction: DismissDirection.horizontal,
         onDismissed: (direction) {
-          model.remove(todo);
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Todo "${todo.name}" dismissed')));
+          if (direction == DismissDirection.endToStart) {
+            model.remove(todo);
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Todo "${todo.name}" dismissed')));
+          } else {
+            Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
+          }
         },
         background: Container(
+          alignment: AlignmentDirectional.centerStart,
+          color: Colors.green,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+            child: Icon(
+              todo.checked?Icons.check_box_outline_blank:Icons.check_box,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        secondaryBackground: Container(
           alignment: AlignmentDirectional.centerEnd,
           color: Colors.red,
           child: const Padding(
@@ -132,9 +149,6 @@ class TodoItem extends StatelessWidget {
           ),
         ),
         child: ListTile(
-          onTap: () {
-            Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
-          },
           leading: CircleAvatar(
             child: Text(todo.name[0].toUpperCase()),
           ),

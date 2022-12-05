@@ -31,8 +31,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Add"), findsOneWidget);
-      await tester.enterText(
-          find.byKey(const ValueKey('Todo-Text')), todoText);
+      await tester.enterText(find.byKey(const ValueKey('Todo-Text')), todoText);
 
       await tester.tap(find.text("Add"));
 
@@ -49,8 +48,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Add"), findsOneWidget);
-      await tester.enterText(
-          find.byKey(const ValueKey('Todo-Text')), todoText);
+      await tester.enterText(find.byKey(const ValueKey('Todo-Text')), todoText);
 
       await tester.tap(find.text("Add"));
 
@@ -61,10 +59,40 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(todoText), findsNothing);
-
     });
-  });
 
+    testWidgets('Swipe left should check a todo', (WidgetTester tester) async {
+      const todoText = 'Test todo item';
+      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo()));
+
+      await tester.tap(find.byKey(const ValueKey('completed-switch')));
+      await tester.pumpAndSettle();
+      Switch completedSwitch =
+      tester.widget<Switch>(find.byKey(const ValueKey('completed-switch')));
+
+      expect(completedSwitch.value, true);
+
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Add"), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('Todo-Text')), todoText);
+
+      await tester.tap(find.text("Add"));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text(todoText), findsOneWidget);
+      await tester.drag(find.text(todoText), const Offset(500, 0));
+      await tester.pumpAndSettle();
+
+      var item = tester.widget<TodoItem>(find.byKey(const Key("Todo-0")));
+      expect(item.todo.checked, equals(true));
+      var text = tester.widget<Text>(find.text(todoText));
+      expect(text.style?.decoration, equals(TextDecoration.lineThrough) );
+    });
+
+  });
 }
 
 class MockTodoRepo implements TodoRepository {
@@ -79,5 +107,4 @@ class MockTodoRepo implements TodoRepository {
   Future<List<Todo>> read() async {
     return _todos;
   }
-
 }

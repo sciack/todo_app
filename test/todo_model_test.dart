@@ -53,6 +53,7 @@ void main() {
         expect(todoModel.todos.length, equals(0));
         called = true;
       });
+
       final removed = todoModel.remove(todo);
       expect(removed, equals(true));
       expect(todoModel.todos.length, equals(0));
@@ -71,6 +72,7 @@ void main() {
       expect(todoModel.todos.length, equals(9));
       expect(todoModel.todos.any((element) => element.id == todo.id), equals(false));
     });
+
   });
 }
 
