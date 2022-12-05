@@ -43,7 +43,8 @@ class TodoModel extends ChangeNotifier {
   }
 
   void set(Todo todo) {
-    _todos[todo.id] = todo;
+    _todos.removeWhere((element) => element.id == todo.id);
+    _todos.add(todo);
     notifyListeners();
   }
 
