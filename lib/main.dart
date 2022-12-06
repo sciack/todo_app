@@ -20,7 +20,11 @@ class TodoApp extends StatelessWidget {
         create: (context) => TodoModel(todoRepo),
         child: MaterialApp(
             title: "Todo list",
-            home: const TodoList(),
+            initialRoute: '/',
+            routes: {
+              '/': (context) => const TodoList(),
+              '/todo': (context) => const TodoPage()
+            },
             theme: ThemeData(
                 brightness: Brightness.light,
                 primarySwatch: Colors.blueGrey,
@@ -50,65 +54,52 @@ class TodoList extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Todo list'),
-      ),
-      body: Column(
-        children: [
-          Row(children: [
-            Switch(
-                key: const Key('completed-switch'),
-                value: model.isShowExpired,
-                onChanged: (bool value) {
-                  model.showExpired = value;
-                }),
-            Container(
-                padding: const EdgeInsets.only(left: 16, right: 8),
-                child: Text(
-                  'Show completed item',
-                  style: textStyle,
-                )),
-          ]),
-          Expanded(
-              child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            children: todos
-                .where((todo) => model.isShowExpired || !(todo.checked))
-                .map((Todo todo) {
-              return TodoItem(
-                key: Key("Todo-${todo.id}"),
-                todo: todo,
-                onTodoTapped: _displayDialog,
-              );
-            }).toList(),
-          ))
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () => _displayDialog(context, null),
-          tooltip: 'Add Item',
-          child: const Icon(Icons.add))
-    );
+        appBar: AppBar(
+          title: const Text('Todo list'),
+        ),
+        body: Column(
+          children: [
+            Row(children: [
+              Switch(
+                  key: const Key('completed-switch'),
+                  value: model.isShowExpired,
+                  onChanged: (bool value) {
+                    model.showExpired = value;
+                  }),
+              Container(
+                  padding: const EdgeInsets.only(left: 16, right: 8),
+                  child: Text(
+                    'Show completed item',
+                    style: textStyle,
+                  )),
+            ]),
+            Expanded(
+                child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              children: todos
+                  .where((todo) => model.isShowExpired || !(todo.checked))
+                  .map((Todo todo) {
+                return TodoItem(
+                  key: Key("Todo-${todo.id}"),
+                  todo: todo,
+                );
+              }).toList(),
+            ))
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () => Navigator.pushNamed(context, "/todo"),
+            tooltip: 'Add Item',
+            child: const Icon(Icons.add)));
   }
-
-  Future<void> _displayDialog(BuildContext context, Todo? todo) async {
-    return showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return TodoDialog(key: const ValueKey("Todo-Dialog"), todo: todo);
-        });
-  }
-
 }
 
 typedef TodoChangeFunction = void Function(BuildContext context, Todo? todo);
 
 class TodoItem extends StatelessWidget {
-  const TodoItem({super.key, required this.todo, required this.onTodoTapped});
+  const TodoItem({super.key, required this.todo});
 
   final Todo todo;
-  final TodoChangeFunction onTodoTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +118,11 @@ class TodoItem extends StatelessWidget {
         },
         background: Container(
           alignment: AlignmentDirectional.centerStart,
-          color: Colors.green,
+          color: todo.checked ? Colors.amber : Colors.green,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+            padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
             child: Icon(
-              todo.checked?Icons.check_box_outline_blank:Icons.check_box,
+              todo.checked ? Icons.check_box_outline_blank : Icons.check_box,
               color: Colors.white,
             ),
           ),
@@ -140,7 +131,7 @@ class TodoItem extends StatelessWidget {
           alignment: AlignmentDirectional.centerEnd,
           color: Colors.red,
           child: const Padding(
-            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+            padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
             child: Icon(
               Icons.delete,
               color: Colors.white,
@@ -155,8 +146,8 @@ class TodoItem extends StatelessWidget {
               style: _getTextStyle(todo, _styleFromDate(todo, context))),
           subtitle: Text(formatDate(todo.date),
               style: _getDateStyle(todo, _styleFromDate(todo, context))),
-          onTap: ()  {
-            onTodoTapped(context, todo);
+          onTap: () {
+            Navigator.pushNamed(context, "/todo", arguments: todo);
           },
         ));
   }

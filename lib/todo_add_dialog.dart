@@ -3,6 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:todo_app/main.dart';
 import 'package:todo_app/todo_model.dart';
 
+class TodoPage extends StatelessWidget {
+  const TodoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final todo = ModalRoute.of(context)!.settings.arguments as Todo?;
+    return Scaffold(
+        appBar: AppBar(title: const Text("Todo")),
+        body: TodoDialog(todo: todo));
+  }
+}
+
 class TodoDialog extends StatefulWidget {
   TodoDialog({super.key, this.todo});
 
@@ -47,69 +59,78 @@ class TodoDialogState extends State<TodoDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add a new todo item'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            key: const ValueKey('Todo-Text'),
-            controller: _textFieldController,
-            decoration: InputDecoration(
-                labelText: 'Todo',
-                errorText: _errorText),
-            onChanged: (_) => setState(() {}),
-          ),
-          TextField(
-              key: const ValueKey('Todo-Date'),
-              controller: _dateFieldController,
-              decoration: const InputDecoration(
-                  suffixIcon: Icon(Icons.calendar_today), //icon of text field
-                  labelText: "Enter Date" //label text of field
-              ),
-              readOnly: true,
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    //get today's date
-                    firstDate: DateTime(2020),
-                    //DateTime.now() - not to allow to choose before today.
-                    lastDate: DateTime(2030)
-                );
-                if (pickedDate != null) {
-                  _dateFieldController.text = formatDate(pickedDate);
-                  setState(() {
-                    date = pickedDate;
-                  });
-                }
-              })
-        ],
-      ),
-      actions: <Widget>[
-        TextButton(
-            child: const Text('Add'),
-            onPressed: () {
-              if (_textFieldController.text.isEmpty) {
-                return;
-              }
-              Navigator.of(context).pop();
-              var todo = widget.todo;
-              if (todo == null) {
-                _addTodoItem(context, _textFieldController.text,
-                    date);
-              } else {
-               _setTodoItem(context, todo, _textFieldController.text, date);
-              }
-            }),
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        )
-      ],
-    );
+
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(30, 8,150,10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              key: const ValueKey('Todo-Text'),
+              controller: _textFieldController,
+              decoration:
+                  InputDecoration(labelText: 'Todo', errorText: _errorText),
+              onChanged: (_) => setState(() {}),
+            ),
+            TextField(
+                key: const ValueKey('Todo-Date'),
+                controller: _dateFieldController,
+                decoration: const InputDecoration(
+                    suffixIcon: Icon(Icons.calendar_today), //icon of text field
+                    labelText: "Enter Date" //label text of field
+                    ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      //get today's date
+                      firstDate: DateTime(2020),
+                      //DateTime.now() - not to allow to choose before today.
+                      lastDate: DateTime(2030));
+                  if (pickedDate != null) {
+                    _dateFieldController.text = formatDate(pickedDate);
+                    setState(() {
+                      date = pickedDate;
+                    });
+                  }
+                }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                    style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.titleLarge,
+                      foregroundColor: Colors.black54
+                    ),
+                    onPressed: () {
+                      if (_textFieldController.text.isEmpty) {
+                        return;
+                      }
+                      Navigator.of(context).pop();
+                      var todo = widget.todo;
+                      if (todo == null) {
+                        _addTodoItem(context, _textFieldController.text, date);
+                      } else {
+                        _setTodoItem(
+                            context, todo, _textFieldController.text, date);
+                      }
+                    },
+                    child: const Text('Add')),
+                TextButton(
+                  style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.titleLarge,
+                      foregroundColor: Colors.black54
+                  ),
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            )
+          ],
+        ));
   }
 
   void _addTodoItem(BuildContext context, String name, DateTime date) {
@@ -117,13 +138,10 @@ class TodoDialogState extends State<TodoDialog> {
     _textFieldController.clear();
   }
 
-  void _setTodoItem(BuildContext context, Todo todo, String name, DateTime date) {
-   var newTodo = Todo(id: todo.id,
-        name: name,
-        checked: todo.checked,
-        date: date);
+  void _setTodoItem(
+      BuildContext context, Todo todo, String name, DateTime date) {
+    var newTodo =
+        Todo(id: todo.id, name: name, checked: todo.checked, date: date);
     Provider.of<TodoModel>(context, listen: false).set(newTodo);
   }
 }
-
-
