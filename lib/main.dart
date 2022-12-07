@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_app/notification/notification_api.dart';
 import 'package:todo_app/settings.dart';
 import 'package:todo_app/todo_add_dialog.dart';
 import 'package:todo_app/todo_model.dart';
@@ -128,6 +129,7 @@ class TodoItem extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Todo "${todo.name}" dismissed')));
           } else {
             Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
+            NotificationHelper.instance.notify("Todo App", "Todo: ${todo.name} completed");
           }
         },
         background: Container(
@@ -157,6 +159,7 @@ class TodoItem extends StatelessWidget {
             icon: todo.checked ? const Icon(Icons.check_box_outlined) : const Icon(Icons.check_box_outline_blank),
             onPressed: () {
               Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
+              NotificationHelper.instance.notify("Todo App", "Todo: ${todo.name} completed");
             },
           ),
           title: Text(todo.name, style: _getTextStyle(todo, _styleFromDate(todo, context))),

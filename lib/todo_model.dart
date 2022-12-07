@@ -3,9 +3,9 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:todo_app/todo_model_repo.dart'
-    if (dart.library.io) 'package:todo_app/todo_model_io.dart'
-    if (dart.library.js) 'package:todo_app/todo_model_web.dart';
+import 'package:todo_app/todo_repo/todo_model_repo.dart'
+    if (dart.library.io) 'package:todo_app/todo_repo/todo_model_io.dart'
+    if (dart.library.js) 'package:todo_app/todo_repo/todo_model_web.dart';
 
 class TodoModel extends ChangeNotifier {
   final List<Todo> _todos = [];
