@@ -61,13 +61,17 @@ class _TodoListState extends State<TodoList> {
     var todos = <Todo>[];
     todos.addAll(model.todos);
     todos.sort((first, second) {
+      var result = first.date.compareTo(second.date);
+      if (result != 0 ) {
+        return result;
+      }
       if (first.checked && !second.checked) {
         return -1;
       }
       if (second.checked) {
         return 1;
       }
-      return first.date.compareTo(second.date);
+      return 0;
     });
 
     return Scaffold(
