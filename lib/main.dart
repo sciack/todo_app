@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_app/settings.dart';
 import 'package:todo_app/todo_add_dialog.dart';
 import 'package:todo_app/todo_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   TodoRepository repo = TodoRepository.instance;
-  runApp(TodoApp(todoRepo: repo));
+  final prefs = await SharedPreferences.getInstance();
+  runApp(TodoApp(todoRepo: repo, prefs: prefs));
 }
 
 class TodoApp extends StatelessWidget {
   final TodoRepository todoRepo;
+  final SharedPreferences prefs;
 
-  const TodoApp({super.key, required this.todoRepo});
+  const TodoApp({super.key, required this.todoRepo, required this.prefs});
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +26,9 @@ class TodoApp extends StatelessWidget {
             title: "Todo list",
             initialRoute: '/',
             routes: {
-              '/': (context) => const TodoList(),
-              '/todo': (context) => const TodoPage()
+              '/': (context) => TodoList(prefs: prefs),
+              '/todo': (context) => const TodoPage(),
+              '/settings': (context) => SettingsPage(prefs: prefs)
             },
             theme: ThemeData(
                 brightness: Brightness.light,
@@ -35,11 +40,11 @@ class TodoApp extends StatelessWidget {
 }
 
 class TodoList extends StatelessWidget {
-  const TodoList({super.key});
+  final SharedPreferences prefs;
+  const TodoList({super.key, required this.prefs});
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = Theme.of(context).textTheme.caption;
     var model = context.watch<TodoModel>();
     var todos = <Todo>[];
     todos.addAll(model.todos);
@@ -56,28 +61,22 @@ class TodoList extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Todo list'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.pushNamed(context, "/settings");
+              },
+            )
+          ],
         ),
         body: Column(
           children: [
-            Row(children: [
-              Switch(
-                  key: const Key('completed-switch'),
-                  value: model.isShowExpired,
-                  onChanged: (bool value) {
-                    model.showExpired = value;
-                  }),
-              Container(
-                  padding: const EdgeInsets.only(left: 16, right: 8),
-                  child: Text(
-                    'Show completed item',
-                    style: textStyle,
-                  )),
-            ]),
             Expanded(
                 child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               children: todos
-                  .where((todo) => model.isShowExpired || !(todo.checked))
+                  .where((todo) => (prefs.getBool(showComplete) ?? false)  || !(todo.checked))
                   .map((Todo todo) {
                 return TodoItem(
                   key: Key("Todo-${todo.id}"),

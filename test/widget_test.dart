@@ -7,16 +7,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:todo_app/main.dart';
 import 'package:todo_app/todo_model.dart';
 
 void main() {
   group('Main widget', () {
+    SharedPreferences? prefs;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({'show complete': true});
+      prefs = await SharedPreferences.getInstance();
+    });
+
     testWidgets('Should create the todo list app', (WidgetTester tester) async {
       // Build our app and trigger a frame.
-      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo()));
-
+      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo(), prefs: prefs!));
       expect(find.text('Todo list'), findsOneWidget);
 
       expect(find.byTooltip('Add Item'), findsOneWidget);
@@ -25,7 +32,7 @@ void main() {
 
     testWidgets('Should display the add dialog', (WidgetTester tester) async {
       const todoText = 'Test todo item';
-      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo()));
+      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo(), prefs: prefs!));
 
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
@@ -42,7 +49,7 @@ void main() {
 
     testWidgets('Should remove a todo', (WidgetTester tester) async {
       const todoText = 'Test todo item';
-      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo()));
+      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo(), prefs: prefs!));
 
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
@@ -63,14 +70,8 @@ void main() {
 
     testWidgets('Swipe left should check a todo', (WidgetTester tester) async {
       const todoText = 'Test todo item';
-      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo()));
+      await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo(), prefs: prefs!));
 
-      await tester.tap(find.byKey(const ValueKey('completed-switch')));
-      await tester.pumpAndSettle();
-      Switch completedSwitch =
-      tester.widget<Switch>(find.byKey(const ValueKey('completed-switch')));
-
-      expect(completedSwitch.value, true);
 
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
@@ -89,9 +90,8 @@ void main() {
       var item = tester.widget<TodoItem>(find.byKey(const Key("Todo-0")));
       expect(item.todo.checked, equals(true));
       var text = tester.widget<Text>(find.text(todoText));
-      expect(text.style?.decoration, equals(TextDecoration.lineThrough) );
+      expect(text.style?.decoration, equals(TextDecoration.lineThrough));
     });
-
   });
 }
 

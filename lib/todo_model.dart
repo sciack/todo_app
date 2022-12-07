@@ -10,14 +10,6 @@ import 'package:todo_app/todo_model_repo.dart'
 class TodoModel extends ChangeNotifier {
   final List<Todo> _todos = [];
   final TodoRepository repo;
-  bool _showExpired = false;
-
-  set showExpired(bool show) {
-    _showExpired = show;
-    notifyListeners();
-  }
-
-  bool get isShowExpired => _showExpired;
 
   UnmodifiableListView<Todo> get todos => UnmodifiableListView(_todos);
 
