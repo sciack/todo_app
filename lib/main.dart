@@ -35,14 +35,30 @@ class TodoApp extends StatelessWidget {
                 primarySwatch: Colors.blueGrey,
                 scaffoldBackgroundColor: Colors.white,
                 textTheme: const TextTheme(
-                    bodyText2: TextStyle(color: Colors.redAccent)))));
+                    bodyText2: TextStyle(color: Colors.redAccent)),
+             textButtonTheme: TextButtonThemeData(
+               style: TextButton.styleFrom(
+                   textStyle: Theme.of(context).textTheme.titleMedium,
+                   backgroundColor: Colors.blueGrey,
+                   foregroundColor: Colors.white
+               ),
+             )
+            )
+        )
+    );
   }
 }
 
-class TodoList extends StatelessWidget {
+class TodoList extends StatefulWidget {
   final SharedPreferences prefs;
+
   const TodoList({super.key, required this.prefs});
 
+  @override
+  State createState() => _TodoListState();
+}
+
+class _TodoListState extends State<TodoList> {
   @override
   Widget build(BuildContext context) {
     var model = context.watch<TodoModel>();
@@ -65,7 +81,10 @@ class TodoList extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
-                Navigator.pushNamed(context, "/settings");
+                Navigator.pushNamed(context, "/settings")
+                    .whenComplete(() {
+                      setState(() {});
+                });
               },
             )
           ],
@@ -76,7 +95,7 @@ class TodoList extends StatelessWidget {
                 child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               children: todos
-                  .where((todo) => (prefs.getBool(showComplete) ?? false)  || !(todo.checked))
+                  .where((todo) => (widget.prefs.getBool(showComplete) ?? false)  || !(todo.checked))
                   .map((Todo todo) {
                 return TodoItem(
                   key: Key("Todo-${todo.id}"),

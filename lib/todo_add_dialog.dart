@@ -98,11 +98,9 @@ class TodoDialogState extends State<TodoDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                    style: TextButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.titleLarge,
-                      foregroundColor: Colors.black54
-                    ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: TextButton(
                     onPressed: () {
                       if (_textFieldController.text.isEmpty) {
                         return;
@@ -116,12 +114,8 @@ class TodoDialogState extends State<TodoDialog> {
                             context, todo, _textFieldController.text, date);
                       }
                     },
-                    child: const Text('Add')),
+                    child: const Text('Add'))),
                 TextButton(
-                  style: TextButton.styleFrom(
-                      textStyle: Theme.of(context).textTheme.titleLarge,
-                      foregroundColor: Colors.black54
-                  ),
                   child: const Text('Cancel'),
                   onPressed: () {
                     Navigator.of(context).pop();
