@@ -72,7 +72,6 @@ void main() {
       const todoText = 'Test todo item';
       await tester.pumpWidget(TodoApp(todoRepo: MockTodoRepo(), prefs: prefs!));
 
-
       await tester.tap(find.byIcon(Icons.add));
       await tester.pumpAndSettle();
 

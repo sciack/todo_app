@@ -9,9 +9,7 @@ class TodoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final todo = ModalRoute.of(context)!.settings.arguments as Todo?;
-    return Scaffold(
-        appBar: AppBar(title: const Text("Todo")),
-        body: TodoDialog(todo: todo));
+    return Scaffold(appBar: AppBar(title: const Text("Todo")), body: TodoDialog(todo: todo));
   }
 }
 
@@ -59,7 +57,6 @@ class TodoDialogState extends State<TodoDialog> {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
         child: Column(
@@ -68,8 +65,7 @@ class TodoDialogState extends State<TodoDialog> {
             TextField(
               key: const ValueKey('Todo-Text'),
               controller: _textFieldController,
-              decoration:
-                  InputDecoration(labelText: 'Todo', errorText: _errorText),
+              decoration: InputDecoration(labelText: 'Todo', errorText: _errorText),
               onChanged: (_) => setState(() {}),
             ),
             TextField(
@@ -98,23 +94,22 @@ class TodoDialogState extends State<TodoDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: TextButton(
-                    onPressed: () {
-                      if (_textFieldController.text.isEmpty) {
-                        return;
-                      }
-                      Navigator.of(context).pop();
-                      var todo = widget.todo;
-                      if (todo == null) {
-                        _addTodoItem(context, _textFieldController.text, date);
-                      } else {
-                        _setTodoItem(
-                            context, todo, _textFieldController.text, date);
-                      }
-                    },
-                    child: const Text('Add'))),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    child: TextButton(
+                        onPressed: () {
+                          if (_textFieldController.text.isEmpty) {
+                            return;
+                          }
+                          Navigator.of(context).pop();
+                          var todo = widget.todo;
+                          if (todo == null) {
+                            _addTodoItem(context, _textFieldController.text, date);
+                          } else {
+                            _setTodoItem(context, todo, _textFieldController.text, date);
+                          }
+                        },
+                        child: const Text('Add'))),
                 TextButton(
                   child: const Text('Cancel'),
                   onPressed: () {
@@ -132,10 +127,8 @@ class TodoDialogState extends State<TodoDialog> {
     _textFieldController.clear();
   }
 
-  void _setTodoItem(
-      BuildContext context, Todo todo, String name, DateTime date) {
-    var newTodo =
-        Todo(id: todo.id, name: name, checked: todo.checked, date: date);
+  void _setTodoItem(BuildContext context, Todo todo, String name, DateTime date) {
+    var newTodo = Todo(id: todo.id, name: name, checked: todo.checked, date: date);
     Provider.of<TodoModel>(context, listen: false).set(newTodo);
   }
 }

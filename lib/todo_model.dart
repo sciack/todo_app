@@ -51,16 +51,10 @@ class TodoModel extends ChangeNotifier {
     notifyListeners();
     return length != _todos.length;
   }
-
-
 }
 
 class Todo {
-  Todo(
-      {required this.id,
-      required this.name,
-      required this.checked,
-      required this.date});
+  Todo({required this.id, required this.name, required this.checked, required this.date});
 
   Todo.fromJson(Map<String, dynamic> json)
       : name = json['name'],
@@ -78,12 +72,7 @@ class Todo {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'checked': checked,
-      'date': date.toIso8601String()
-    };
+    return {'id': id, 'name': name, 'checked': checked, 'date': date.toIso8601String()};
   }
 
   bool isLate() {
@@ -99,7 +88,6 @@ abstract class TodoRepository {
   static TodoRepository? _instance;
 
   Future<List<Todo>> read();
-
 
   static TodoRepository get instance {
     _instance ??= getTodoRepository();

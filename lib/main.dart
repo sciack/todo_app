@@ -35,8 +35,7 @@ class TodoApp extends StatelessWidget {
                 brightness: Brightness.light,
                 primarySwatch: Colors.blueGrey,
                 scaffoldBackgroundColor: Colors.white,
-                textTheme: const TextTheme(
-                    bodyText2: TextStyle(color: Colors.redAccent)),
+                textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.redAccent)),
                 textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
                       textStyle: Theme.of(context).textTheme.titleMedium,
@@ -91,9 +90,7 @@ class _TodoListState extends State<TodoList> {
                 child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               children: todos
-                  .where((todo) =>
-                      (widget.prefs.getBool(showComplete) ?? false) ||
-                      !(todo.checked))
+                  .where((todo) => (widget.prefs.getBool(showComplete) ?? false) || !(todo.checked))
                   .map((Todo todo) {
                 return TodoItem(
                   key: Key("Todo-${todo.id}"),
@@ -104,9 +101,7 @@ class _TodoListState extends State<TodoList> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-            onPressed: () => Navigator.pushNamed(context, "/todo"),
-            tooltip: 'Add Item',
-            child: const Icon(Icons.add)));
+            onPressed: () => Navigator.pushNamed(context, "/todo"), tooltip: 'Add Item', child: const Icon(Icons.add)));
   }
 }
 
@@ -126,8 +121,7 @@ class TodoItem extends StatelessWidget {
         onDismissed: (direction) {
           if (direction == DismissDirection.endToStart) {
             model.remove(todo);
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Todo "${todo.name}" dismissed')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Todo "${todo.name}" dismissed')));
           } else {
             Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
           }
@@ -156,17 +150,13 @@ class TodoItem extends StatelessWidget {
         ),
         child: ListTile(
           leading: IconButton(
-            icon: todo.checked
-                ? const Icon(Icons.check_box_outlined)
-                : const Icon(Icons.check_box_outline_blank),
+            icon: todo.checked ? const Icon(Icons.check_box_outlined) : const Icon(Icons.check_box_outline_blank),
             onPressed: () {
               Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
             },
           ),
-          title: Text(todo.name,
-              style: _getTextStyle(todo, _styleFromDate(todo, context))),
-          subtitle: Text(formatDate(todo.date),
-              style: _getDateStyle(todo, _styleFromDate(todo, context))),
+          title: Text(todo.name, style: _getTextStyle(todo, _styleFromDate(todo, context))),
+          subtitle: Text(formatDate(todo.date), style: _getDateStyle(todo, _styleFromDate(todo, context))),
           onTap: () {
             Navigator.pushNamed(context, "/todo", arguments: todo);
           },
