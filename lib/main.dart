@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   TodoRepository repo = TodoRepository.instance;
+  WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   runApp(TodoApp(todoRepo: repo, prefs: prefs));
 }
@@ -36,16 +37,12 @@ class TodoApp extends StatelessWidget {
                 scaffoldBackgroundColor: Colors.white,
                 textTheme: const TextTheme(
                     bodyText2: TextStyle(color: Colors.redAccent)),
-             textButtonTheme: TextButtonThemeData(
-               style: TextButton.styleFrom(
-                   textStyle: Theme.of(context).textTheme.titleMedium,
-                   backgroundColor: Colors.blueGrey,
-                   foregroundColor: Colors.white
-               ),
-             )
-            )
-        )
-    );
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.titleMedium,
+                      backgroundColor: Colors.blueGrey,
+                      foregroundColor: Colors.white),
+                ))));
   }
 }
 
@@ -81,9 +78,8 @@ class _TodoListState extends State<TodoList> {
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
-                Navigator.pushNamed(context, "/settings")
-                    .whenComplete(() {
-                      setState(() {});
+                Navigator.pushNamed(context, "/settings").whenComplete(() {
+                  setState(() {});
                 });
               },
             )
@@ -95,7 +91,9 @@ class _TodoListState extends State<TodoList> {
                 child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               children: todos
-                  .where((todo) => (widget.prefs.getBool(showComplete) ?? false)  || !(todo.checked))
+                  .where((todo) =>
+                      (widget.prefs.getBool(showComplete) ?? false) ||
+                      !(todo.checked))
                   .map((Todo todo) {
                 return TodoItem(
                   key: Key("Todo-${todo.id}"),
@@ -157,8 +155,13 @@ class TodoItem extends StatelessWidget {
           ),
         ),
         child: ListTile(
-          leading: CircleAvatar(
-            child: Text(todo.name[0].toUpperCase()),
+          leading: IconButton(
+            icon: todo.checked
+                ? const Icon(Icons.check_box_outlined)
+                : const Icon(Icons.check_box_outline_blank),
+            onPressed: () {
+              Provider.of<TodoModel>(context, listen: false).set(todo.toggle());
+            },
           ),
           title: Text(todo.name,
               style: _getTextStyle(todo, _styleFromDate(todo, context))),
